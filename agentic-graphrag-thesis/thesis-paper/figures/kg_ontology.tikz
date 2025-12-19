@@ -1,0 +1,67 @@
+\begin{tikzpicture}[
+    font=\sffamily\small,
+    >=Stealth,
+    % --- Styles ---
+    entity/.style={rectangle, rounded corners, align=center, minimum width=2.5cm, minimum height=1cm, inner sep=6pt, draw=black!60, thick, drop shadow},
+    rel/.style={midway, fill=white, font=\footnotesize\itshape, text=gray!80, inner sep=2pt},
+    % Colors for different entity types
+    colReq/.style={fill=red!10, draw=red!40},
+    colTest/.style={fill=orange!10, draw=orange!40},
+    colCode/.style={fill=blue!10, draw=blue!40},
+    colClass/.style={fill=purple!10, draw=purple!40}
+]
+
+    % --- Nodes ---
+    % Requirement at the top
+    \node[entity, colReq] (req) at (0, 0) {
+        \textbf{Requirement}\\
+        \faClipboardList\ \ SRS-001
+    };
+
+    % Test Case below Requirement
+    \node[entity, colTest] (test) at (0, -2.5) {
+        \textbf{TestCase}\\
+        \faVial\ \ test\_login()
+    };
+
+    % Function below Test Case
+    \node[entity, colCode] (func) at (0, -5) {
+        \textbf{Function}\\
+        \faCode\ \ authUser()
+    };
+
+    % Class to the right of Function
+    \node[entity, colClass] (class) at (4.5, -5) {
+        \textbf{Class}\\
+        \faCube\ \ AuthManager
+    };
+
+    % Another function to illustrate calls
+    \node[entity, colCode] (db) at (-4, -5) {
+        \textbf{Function}\\
+        \faDatabase\ \ dbQuery()
+    };
+
+    % --- Relationships ---
+
+    % Test verifies Requirement
+    \draw[->, thick] (test) -- node[rel] {verifies} (req);
+
+    % Test covers Function
+    \draw[->, thick] (test) -- node[rel] {covers} (func);
+
+    % Function belongs to Class
+    \draw[->, thick] (func) -- node[rel] {defined\_in} (class);
+
+    % Function calls Function
+    \draw[->, thick] (func) -- node[rel] {calls} (db);
+    
+    % Optional: Recursive call or generic relation
+    %
+
+    % --- Background / Context ---
+    \begin{scope}[on background layer]
+        \node[draw=gray!30, dashed, rounded corners, fill=gray!5, fit=(req) (test) (func) (class) (db), label={[text=gray, font=\bfseries\small]north:Software Knowledge Graph Ontology}] {};
+    \end{scope}
+
+\end{tikzpicture}

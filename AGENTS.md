@@ -62,6 +62,17 @@ Located in `unified-search-app/`.
 - **Configuration**: Requires `DATA_ROOT` or `BLOB_ACCOUNT_NAME` environment variables.
 - **Data Format**: Requires a `listing.json` file in the data root.
 
+## Thesis Project (Subproject)
+
+Located in `agentic-graphrag-thesis/`.
+
+- **Topic**: "Agentic RAG & Knowledge Graphs for Test Scope Analysis"
+- **Institution**: Linköping University (Master's Thesis in Computer Science)
+- **External Partner**: Ericsson
+- **Setup**: `cd agentic-graphrag-thesis && uv sync`
+- **Documentation**: See `agentic-graphrag-thesis/AGENTS.md` and `agentic-graphrag-thesis/thesis-paper/` for detailed thesis content
+- **Purpose**: Research implementation of agent-orchestrated GraphRAG systems for automated test case recommendation in enterprise software development
+
 ## Additional Notes
 
 - **Config Migration**: Run `graphrag init --root [path] --force` between minor version bumps.

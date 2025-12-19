@@ -1,0 +1,122 @@
+\begin{tikzpicture}[
+    font=\sffamily\small,
+    >=Stealth,
+    % --- Styles ---
+    colIngest/.style={fill=blue!10, draw=blue!40, thick},
+    colProcess/.style={fill=yellow!10, draw=orange!40, thick},
+    colStore/.style={fill=green!10, draw=green!40, thick},
+    colRetrieval/.style={fill=purple!10, draw=purple!40, thick},
+    block/.style={rectangle, rounded corners, align=center, minimum width=2.6cm, minimum height=1cm, inner sep=6pt},
+    pill/.style={rectangle, rounded corners=0.5cm, align=center, fill=gray!10, draw=gray, thin, font=\footnotesize},
+    container/.style={draw, dashed, inner sep=0.4cm, rounded corners, fill=gray!5, label={[anchor=north west, text=gray!70, font=\bfseries\footnotesize, yshift=-0.1cm]north west:#1}}
+]
+
+    % ==========================================
+    % GRID LAYOUT DEFINITIONS
+    % ==========================================
+    \def\colLeft{0}
+    \def\colCenter{5.5}
+    \def\colRight{11}
+    
+    \def\rowTop{0}
+    \def\rowMid{-2.5}
+    \def\rowBot{-5}
+
+    % ==========================================
+    % 1. PLACING NODES ON THE GRID
+    % ==========================================
+
+    % --- ROW 1 (TOP) ---
+    \node[block, colIngest] (sources) at (\colLeft, \rowTop) {
+        \textbf{Data Sources}\\
+        \faGit*\ \ Git \quad \faFilePdf[regular]\ \ Docs
+    };
+
+    \node[block, fill=cyan!5, draw=cyan!50, thick] (query) at (\colRight, \rowTop) {
+        \textbf{User Query}\\
+        \faUser\ \ Prompt
+    };
+
+    % --- ROW 2 (MIDDLE) ---
+    \node[block, colProcess] (chunks) at (\colLeft, \rowMid) {
+        \textbf{Chunking \& Splitting}\\
+        \faCut\ \ Structure-Aware
+    };
+
+    \node[block, colStore] (vec_store) at (\colCenter, \rowMid) {
+        \textbf{Vector Store}\\
+        \faDatabase\ \ Embeddings
+    };
+
+    \node[block, colRetrieval] (retrieval) at (\colRight, \rowMid) {
+        \textbf{Hybrid Retrieval}\\
+        \faSearch\ \ Vector + Graph
+    };
+
+    % --- ROW 3 (BOTTOM) ---
+    \node[block, colProcess] (embed) at (\colLeft, \rowBot) {
+        \textbf{Embedding \& Extraction}\\
+        \faBrain\ \ Model + RE
+    };
+
+    \node[block, colStore] (graph_store) at (\colCenter, \rowBot) {
+        \textbf{Knowledge Graph}\\
+        \faProjectDiagram\ \ Entities/Relations
+    };
+
+    \node[block, colRetrieval] (llm) at (\colRight, \rowBot) {
+        \textbf{LLM Generation}\\
+        \faRobot\ \ Response
+    };
+
+    % ==========================================
+    % 2. CONNECTIONS
+    % ==========================================
+    
+    % Ingestion Column
+    \draw[->, thick] (sources) -- (chunks);
+    \draw[->, thick] (chunks) -- (embed);
+    
+    % Ingestion -> Storage
+    \draw[->, thick] (embed.east) -- node[left, font=\footnotesize, pos=0.8] {Vectors} (vec_store.south west);
+    \draw[->, thick] (embed) -- node[above, font=\footnotesize] {Triples} (graph_store);
+
+    % Inference Column
+    \draw[->, thick] (query) -- (retrieval);
+    \draw[->, thick] (retrieval) -- node[right, font=\footnotesize] {Context} (llm);
+
+    % Retrieval <-> Storage
+    \draw[<->, dashed, thick] (retrieval) -- node[above, font=\footnotesize] {Search} (vec_store);
+    \draw[<->, dashed, thick] (retrieval.south west) -- node[right, font=\footnotesize, pos=0.2] {Query} (graph_store.north east);
+
+
+    % ==========================================
+    % 3. BACKGROUND CONTAINERS
+    % ==========================================
+    \begin{scope}[on background layer]
+        
+        % --- FIX: DEFINE VERTICAL STRUTS ---
+        % We create an invisible point 0.8cm ABOVE the top row.
+        % Including this point in the 'fit' pushes the border up.
+        \coordinate (top_strut) at ($(sources.north) + (0, 0.8cm)$);
+        
+        % We create a bottom strut to ensure all boxes end at the exact same line
+        \coordinate (bot_strut) at (embed.south);
+
+        % --- DRAW CONTAINERS ---
+        
+        % 1. Ingestion Pipeline
+        % Fit sources, embed, AND the top_strut (projected to sources x-axis)
+        \node[container={Ingestion Pipeline}, fit=(sources) (embed) (top_strut -| sources)] (box_ingest) {};
+
+        % 2. Knowledge Base
+        % Fit the stores AND top_strut AND bot_strut (projected to center x-axis)
+        \node[container={Knowledge Base}, fit=(vec_store) (graph_store) (top_strut -| vec_store) (bot_strut -| vec_store)] (box_storage) {};
+
+        % 3. Inference
+        % Fit query, llm, AND the top_strut (projected to query x-axis)
+        \node[container={Inference}, fit=(query) (llm) (top_strut -| query)] (box_inference) {};
+
+    \end{scope}
+
+\end{tikzpicture}

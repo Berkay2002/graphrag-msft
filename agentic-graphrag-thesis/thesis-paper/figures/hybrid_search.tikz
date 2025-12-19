@@ -1,0 +1,82 @@
+\begin{tikzpicture}[
+    font=\sffamily\small,
+    >=Stealth,
+    % --- Styles ---
+    process/.style={rectangle, rounded corners, align=center, minimum width=2.5cm, minimum height=1cm, inner sep=6pt, thick, draw=black!50},
+    data/.style={rectangle, align=center, minimum width=2cm, minimum height=0.8cm, inner sep=4pt, fill=white, draw=gray, dashed},
+    % Colors
+    colQuery/.style={fill=cyan!10, draw=cyan!50},
+    colVector/.style={fill=blue!10, draw=blue!40},
+    colKeyword/.style={fill=orange!10, draw=orange!40},
+    colFusion/.style={fill=purple!10, draw=purple!40},
+    colResult/.style={fill=green!10, draw=green!40}
+]
+
+    % --- Nodes ---
+
+    % 1. Input
+    \node[process, colQuery] (query) at (0, 0) {
+        \textbf{User Query}\\
+        \faKeyboard\ \ "Login Error 503"
+    };
+
+    % 2. Parallel Strategies (Split)
+    \node[process, colVector] (dense) at (-3, -2) {
+        \textbf{Dense Retrieval}\\
+        \faProjectDiagram\ \ Vector Search\\
+        (Semantic)
+    };
+
+    \node[process, colKeyword] (sparse) at (3, -2) {
+        \textbf{Sparse Retrieval}\\
+        \faSearch\ \ BM25\\
+        (Lexical)
+    };
+
+    % 3. Intermediate Results
+    \node[data, below=0.5cm of dense] (res_dense) {
+        Top-K\\
+        (Cosine Sim)
+    };
+
+    \node[data, below=0.5cm of sparse] (res_sparse) {
+        Top-K\\
+        (BM25 Score)
+    };
+
+    % 4. Fusion
+    \node[process, colFusion] (rrf) at (0, -5.5) {
+        \textbf{Reciprocal Rank Fusion}\\
+        \faRandom\ \ $Score = \sum \frac{1}{k+r}$
+    };
+
+    % 5. Output
+    \node[process, colResult] (final) at (0, -7.5) {
+        \textbf{Final Ranked List}\\
+        \faListOl\ \ Unified Context
+    };
+
+    % --- Connections ---
+    
+    % Split
+    \draw[->, thick] (query) -- (dense);
+    \draw[->, thick] (query) -- (sparse);
+
+    % Process to Data
+    \draw[->, thick] (dense) -- (res_dense);
+    \draw[->, thick] (sparse) -- (res_sparse);
+
+    % Data to Fusion
+    \draw[->, thick] (res_dense) |- (rrf);
+    \draw[->, thick] (res_sparse) |- (rrf);
+
+    % Fusion to Output
+    \draw[->, thick] (rrf) -- (final);
+
+    % --- Background ---
+    \begin{scope}[on background layer]
+        % Removed the label "Hybrid Search Strategy"
+        \node[draw=gray!20, fill=gray!5, rounded corners, fit=(query) (final) (dense) (sparse)] {};
+    \end{scope}
+
+\end{tikzpicture}

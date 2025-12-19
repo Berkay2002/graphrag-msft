@@ -1,0 +1,112 @@
+\begin{tikzpicture}[
+    font=\sffamily\scriptsize,
+    >=Stealth,
+    % --- Styles ---
+    layer/.style={fill=gray!5, draw=gray!30, rounded corners, inner sep=5pt},
+    node_pt/.style={circle, draw=black!60, fill=white, inner sep=1.5pt, minimum size=0.45cm},
+    entry_pt/.style={circle, draw=green!60!black, fill=green!10, inner sep=1.5pt, minimum size=0.45cm, font=\bfseries},
+    target_pt/.style={circle, draw=red!60!black, fill=red!10, inner sep=1.5pt, minimum size=0.45cm, font=\bfseries},
+    conn/.style={-, thin, gray!40},
+    path/.style={->, thick, blue!80},
+    layer_label/.style={anchor=south west, text=gray!80, font=\bfseries\tiny, yshift=2pt},
+    dashed_link/.style={dashed, gray, thick}
+]
+
+    % --- Coordinates Definitions for Alignment ---
+    \def\dropOneX{3.8} 
+    \def\dropOneY{0.5}
+    \def\dropTwoX{1.2}
+    \def\dropTwoY{-0.5}
+
+    % ==========================
+    % Layer 2 (Top - Sparse)
+    % ==========================
+    \begin{scope}[yshift=5cm]
+        % Draw box on background layer so it stays behind everything
+        \begin{scope}[on background layer]
+            \draw[layer] (-0.5, -1.2) rectangle (5.5, 1.2);
+        \end{scope}
+        \node[layer_label] at (-0.5, 1.2) {Layer 2 (Entry)};
+        
+        \node[entry_pt] (L2_start) at (0.5, 0) {E};
+        \node[node_pt] (L2_End) at (\dropOneX, \dropOneY) {};
+        
+        \draw[conn] (L2_start) -- (L2_End);
+        \draw[path] (L2_start) -- (L2_End);
+    \end{scope}
+
+    % ==========================
+    % Layer 1 (Middle)
+    % ==========================
+    \begin{scope}[yshift=2.5cm]
+        % Draw box on background layer
+        \begin{scope}[on background layer]
+            \draw[layer] (-0.5, -1.2) rectangle (5.5, 1.2);
+        \end{scope}
+        \node[layer_label] at (-0.5, 1.2) {Layer 1};
+
+        \node[node_pt] (L1_Start) at (\dropOneX, \dropOneY) {}; 
+        \node[node_pt] (L1_Mid) at (2.5, 0) {};
+        \node[node_pt] (L1_End) at (\dropTwoX, \dropTwoY) {};
+        
+        \draw[conn] (L1_Start) -- (L1_Mid);
+        \draw[conn] (L1_Mid) -- (L1_End);
+        \draw[conn] (L1_Start) -- (L1_End); 
+        
+        \draw[path] (L1_Start) -- (L1_Mid);
+        \draw[path] (L1_Mid) -- (L1_End);
+    \end{scope}
+
+    % ==========================
+    % Layer 0 (Bottom - Dense)
+    % ==========================
+    \begin{scope}[yshift=0cm]
+        % Draw box on background layer
+        \begin{scope}[on background layer]
+            \draw[layer] (-0.5, -1.2) rectangle (5.5, 1.2);
+        \end{scope}
+        \node[layer_label] at (-0.5, 1.2) {Layer 0 (Base Data)};
+
+        \node[node_pt] (L0_Start) at (\dropTwoX, \dropTwoY) {}; 
+        \node[node_pt] (L0_Mid) at (2.5, -0.2) {};
+        \node[target_pt] (target) at (4.5, -0.5) {T}; 
+        \node[node_pt] (L0_Neighbor) at (0.5, 0) {};
+        
+        \draw[conn] (L0_Start) -- (L0_Mid);
+        \draw[conn] (L0_Mid) -- (target);
+        \draw[conn] (target) -- (L0_Neighbor);
+        \draw[conn] (L0_Start) -- (L0_Neighbor);
+        \draw[conn] (L0_Mid) -- (L0_Neighbor);
+
+        \draw[path] (L0_Start) -- (L0_Mid);
+        \draw[path] (L0_Mid) -- (target);
+    \end{scope}
+
+    % ==========================
+    % Inter-Layer Vertical Connections
+    % ==========================
+    % These are on background layer, but drawn AFTER the boxes, 
+    % so they sit ON TOP of the gray box but BEHIND the nodes.
+    \begin{scope}[on background layer]
+        \draw[dashed_link] (L2_End) -- (L1_Start);
+        \draw[dashed_link] (L1_End) -- (L0_Start);
+    \end{scope}
+
+    % ==========================
+    % Explanation Text
+    % ==========================
+    \node[align=left, anchor=north west, font=\scriptsize, text width=5cm] at (6, 5.5) {
+        \textbf{HNSW Search Process}
+        \vspace{0.2cm}
+        \begin{enumerate}
+            \setlength\itemsep{0.2em}
+            \item \textbf{Zoom-in:} Start at top layer (sparse).
+            \item \textbf{Greedy Search:} Move to neighbor closest to query.
+            \item \textbf{Descend:} Drop to lower, denser layer.
+            \item \textbf{Refine:} Repeat until Base Layer 0.
+        \end{enumerate}
+        \vspace{0.2cm}
+        \tikz\draw[path] (0,0) -- (0.5,0); \textbf{ Search Path} ($O(\log N)$)
+    };
+
+\end{tikzpicture}

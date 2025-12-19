@@ -1,0 +1,49 @@
+\begin{tikzpicture}[
+    font=\sffamily\footnotesize,
+    >=Stealth,
+    scale=1.2,
+    % --- Styles ---
+    axis/.style={->, thick, gray},
+    vector/.style={->, thick, line width=1.5pt},
+    angle/.style={dashed, thin, gray},
+    label/.style={fill=white, inner sep=1pt, text=gray!80, font=\scriptsize\itshape}
+]
+
+    % --- Grid / Axis ---
+    \draw[axis] (0,0) -- (4,0) node[right] {Dimension 1};
+    \draw[axis] (0,0) -- (0,4) node[above] {Dimension 2};
+    \draw[dotted, gray!30, step=0.5] (0,0) grid (3.5,3.5);
+
+    % --- Vectors ---
+    
+    % Vector A: "Login"
+    \draw[vector, blue!60] (0,0) -- (3, 1) coordinate (vecA) node[anchor=south west, text=blue] {$\vec{v}_{Login}$};
+    
+    % Vector B: "Authentication" (Close to Login)
+    \draw[vector, blue!60] (0,0) -- (2.5, 1.5) coordinate (vecB) node[anchor=south west, text=blue] {$\vec{v}_{Auth}$};
+    
+    % Vector C: "Payment" (Far away)
+    \draw[vector, red!60] (0,0) -- (1, 3) coordinate (vecC) node[anchor=south west, text=red] {$\vec{v}_{Payment}$};
+
+    % --- Angles (Cosine Similarity) ---
+    
+    % Angle between Login and Auth (Small)
+    \draw[angle, <->] (1.5, 0.5) to[bend right=20] (1.25, 0.75);
+    \node[label] at (1.8, 0.6) {High Sim (Small $\theta$)};
+
+    % Angle between Login and Payment (Large)
+    \draw[angle, <->] (0.8, 0.25) to[bend left=45] (0.3, 0.9);
+    \node[label] at (1.2, 2.0) {Low Sim (Large $\phi$)};
+
+    % --- Formulas ---
+    \node[align=left, anchor=north west, draw=gray!20, fill=gray!5, rounded corners] at (4.5, 4) {
+        \textbf{Cosine Similarity}\\
+        Measures orientation, not magnitude.\\
+        \\
+        $\text{sim}(\vec{A}, \vec{B}) = \cos(\theta) = \frac{\vec{A} \cdot \vec{B}}{\|\vec{A}\| \|\vec{B}\|}$\\
+        \\
+        \textcolor{blue}{$\vec{v}_{Login} \approx \vec{v}_{Auth}$} (Synonyms)\\
+        \textcolor{red}{$\vec{v}_{Login} \perp \vec{v}_{Payment}$} (Unrelated)
+    };
+
+\end{tikzpicture}

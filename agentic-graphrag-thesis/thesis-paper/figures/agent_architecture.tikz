@@ -1,0 +1,56 @@
+\begin{tikzpicture}[
+    node distance=1.5cm and 2cm,
+    font=\small\sffamily,
+    >=Stealth,
+    % Define styles
+    block/.style={draw, rounded corners, minimum width=2.5cm, minimum height=1cm, align=center, fill=white, thick},
+    brain/.style={block, fill=blue!10, minimum width=4cm, minimum height=1.5cm},
+    memory/.style={block, fill=yellow!10},
+    tool/.style={block, fill=green!10},
+    external/.style={circle, draw, thick, fill=gray!10, inner sep=2pt, minimum size=1.2cm, align=center},
+    container/.style={draw, dashed, inner sep=0.5cm, rounded corners, fill=gray!5, label={[anchor=north west, font=\footnotesize\bfseries, text=gray]north west:#1}}
+]
+
+    % 1. The Central Brain (LLM)
+    \node[brain] (llm) {\textbf{Large Language Model}\\(Reasoning \& Planning)};
+
+    % 2. Memory Module (Top)
+    \node[memory, above left=1cm and -0.5cm of llm] (stm) {\textbf{Short-Term}\\(Context)};
+    \node[memory, above right=1cm and -0.5cm of llm] (ltm) {\textbf{Long-Term}\\(RAG/Vector Store)};
+    
+    % Group Memory
+    \begin{scope}[on background layer]
+        \node[container={Memory Systems}, fit=(stm) (ltm)] (mem_box) {};
+    \end{scope}
+
+    % 3. Tools Module (Bottom)
+    \node[tool, below=2cm of llm, minimum width=5cm] (tools) {\textbf{External Tools}\\(Hybrid Search, VCS/Git, Issue Tracker)};
+
+    % 4. External Inputs/Outputs
+    \node[external, left=2cm of llm] (user) {User\\Input};
+    \node[external, right=2cm of llm] (output) {Final\\Answer};
+
+    % --- Connections ---
+
+    % Input/Output Flow
+    \draw[->, thick] (user) -- node[above, font=\footnotesize] {Goal/Prompt} (llm);
+    \draw[->, thick] (llm) -- node[above, font=\footnotesize] {Response} (output);
+
+    % Memory Interaction (Bi-directional)
+    \draw[<->, thick] (llm) -- node[left, font=\footnotesize, align=right] {Read/Write\\State} (stm);
+    \draw[<->, thick] (llm) -- node[right, font=\footnotesize, align=left] {Retrieve\\Context} (ltm);
+
+    % The ReAct Cycle (Loop with Tools)
+    \draw[->, thick, blue!70!black] (llm.south west) to[bend right=30] 
+        node[left, font=\footnotesize, align=right] {\textbf{Action}\\(Function Call)} 
+        (tools.north west);
+        
+    \draw[->, thick, red!70!black] (tools.north east) to[bend right=30] 
+        node[right, font=\footnotesize, align=left] {\textbf{Observation}\\(Tool Output)} 
+        (llm.south east);
+
+    % Internal "Thought" loop (Self-reflection)
+    \draw[->, thick, dashed] (llm.north) ++(0,0.75) arc[start angle=90, end angle=450, radius=0.3] 
+        node[anchor=south, font=\footnotesize] {Think/Plan};
+
+\end{tikzpicture}

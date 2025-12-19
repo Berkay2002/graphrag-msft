@@ -1,0 +1,95 @@
+\begin{tikzpicture}[
+    font=\sffamily\footnotesize,
+    >=Stealth,
+    node distance=0.3cm and 2cm, % Vertical spacing 0.3cm, Horizontal 2cm
+    % --- Styles ---
+    codeblock/.style={rectangle, draw=gray!40, fill=white, align=left, font=\ttfamily\scriptsize, inner sep=6pt, text width=2.5cm},
+    chunk/.style={rectangle, draw=blue!40, fill=blue!5, rounded corners, inner sep=6pt, align=center, text width=4.2cm},
+    badchunk/.style={rectangle, draw=red!40, fill=red!5, rounded corners, inner sep=6pt, align=center, text width=3.5cm},
+    arrow/.style={->, thick, gray!60},
+    title/.style={font=\bfseries, align=center},
+    subtitle/.style={font=\scriptsize, color=gray, align=center}
+]
+
+    % ==========================
+    % 1. Source Code Representation (Center)
+    % ==========================
+    \node[title] (source_title) at (0,0) {Source File};
+    
+    \node[codeblock, below=0.2cm of source_title] (source) {
+        class User \{ \\
+        \ \ void login() \{ \\
+        \ \ \ \ verify();\\
+        \ \ \ \ log();\\
+        \ \ \} \\
+        \ \ void logout() \{ \\
+        \ \ \ \ cleanup();\\
+        \ \ \} \\
+        \}
+    };
+
+    % ==========================
+    % 2. Fixed-Size Chunking (Left)
+    % ==========================
+    % Position title relative to source
+    \node[title, text=red] (fixed_title) at (-5, 0) {Fixed-Size Splitting};
+    \node[subtitle, below=0.1cm of fixed_title] (fixed_sub) {(e.g., every 50 chars)};
+
+    % Chunk 1
+    \node[badchunk, below=0.2cm of fixed_sub] (f_chunk1) {
+        \textbf{Chunk 1}\\
+        \texttt{class User \{\}} \\
+        \texttt{\ \ void login() \{\}} \\
+        \texttt{\ \ \ \ verify();}
+    };
+
+    % Chunk 2
+    \node[badchunk, below=of f_chunk1] (f_chunk2) {
+        \textbf{Chunk 2}\\
+        \texttt{\ \ \ \ log();} \\
+        \texttt{\ \ \ \}\}} \\
+        \texttt{\ \ void logout()}
+    };
+
+    % Annotation (Positioned relative to the last chunk, so no overlap)
+    \node[text=red, align=center, font=\scriptsize, below=0.2cm of f_chunk2] {
+        \faTimes\ \textbf{Context Lost}\\ "log()" is orphaned
+    };
+
+    % ==========================
+    % 3. Semantic Chunking (Right)
+    % ==========================
+    % Position title relative to source
+    \node[title, text=blue] (semantic_title) at (5, 0) {Semantic Splitting};
+    \node[subtitle, below=0.1cm of semantic_title] (semantic_sub) {(AST / Structure-Aware)};
+
+    % Chunk 1
+    \node[chunk, below=0.2cm of semantic_sub] (s_chunk1) {
+        \textbf{Chunk 1: login()}\\
+        \textit{(Includes Parent Context)}\\
+        \texttt{class User > login()}\\
+        \texttt{\dots full method body \dots}
+    };
+
+    % Chunk 2
+    \node[chunk, below=of s_chunk1] (s_chunk2) {
+        \textbf{Chunk 2: logout()}\\
+        \textit{(Includes Parent Context)}\\
+        \texttt{class User > logout()}\\
+        \texttt{\dots full method body \dots}
+    };
+
+    % Annotation (Positioned relative to the last chunk, so no overlap)
+    \node[text=blue, align=center, font=\scriptsize, below=0.2cm of s_chunk2] {
+        \faCheck\ \textbf{Context Preserved}\\ Logical boundaries kept
+    };
+
+    % ==========================
+    % Connections
+    % ==========================
+    \draw[arrow] (source) -- (f_chunk1.east);
+    \draw[arrow] (source) -- (f_chunk2.east);
+    \draw[arrow] (source) -- (s_chunk1.west);
+    \draw[arrow] (source) -- (s_chunk2.west);
+
+\end{tikzpicture}
